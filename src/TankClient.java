@@ -9,15 +9,16 @@ import java.awt.event.WindowEvent;
 
 public class TankClient extends Frame {
 
-	public static final int GAME_WIDTH=800, GAME_HEIGHT=600;
-	Tank myTank=new Tank(50, 50);
+	public static final int GAME_WIDTH = 800, GAME_HEIGHT = 600;
+	Tank myTank = new Tank(50, 50, this);
+	Missile missile = null;
 	Image offScreenImage = null;
 
 	@Override
 	public void paint(Graphics g) {
-		
+		if (missile != null)
+			missile.draw(g);
 		myTank.draw(g);
-		
 
 	}
 
@@ -25,9 +26,9 @@ public class TankClient extends Frame {
 		if (offScreenImage == null) {
 			offScreenImage = this.createImage(GAME_WIDTH, GAME_HEIGHT);
 		}
-		
+
 		Graphics gOffScreen = offScreenImage.getGraphics();
-		Color c =gOffScreen.getColor();
+		Color c = gOffScreen.getColor();
 		gOffScreen.setColor(Color.GREEN);
 		gOffScreen.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 		gOffScreen.setColor(c);
@@ -77,8 +78,8 @@ public class TankClient extends Frame {
 		}
 
 	}
-	
-	private class KeyMonitor extends KeyAdapter{
+
+	private class KeyMonitor extends KeyAdapter {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
@@ -89,9 +90,7 @@ public class TankClient extends Frame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			myTank.keyPressed(e);
-			}
 		}
-		
 	}
 
-
+}

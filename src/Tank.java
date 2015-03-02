@@ -6,6 +6,9 @@ public class Tank {
 
 	private final static int XSPEED = 5;
 	private final static int YSPEED = 5;
+	
+	private final static int WIDTH = 30;
+	private final static int HEIGHT = 30;
 	private boolean bL = false, bU = false, bD = false, bR = false;
 
 	enum Direction {
@@ -14,16 +17,21 @@ public class Tank {
 
 	private Direction dir = Direction.STOP;
 	int x, y;
-
+	TankClient tc;
 	public Tank(int x, int y) {
 		this.x = x;
 		this.y = y;
+	}
+	
+	public Tank(int x, int y ,TankClient tc){
+		this(x,y);
+		this.tc=tc;
 	}
 
 	public void draw(Graphics g) {
 		Color c = g.getColor();
 		g.setColor(Color.RED);
-		g.fillOval(x, y, 30, 30);
+		g.fillOval(x, y, WIDTH, HEIGHT);
 		g.setColor(c);
 	}
 
@@ -66,6 +74,9 @@ public class Tank {
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 		switch (key) {
+		case KeyEvent.VK_SPACE:
+			tc.missile=this.fire();
+			break;
 		case KeyEvent.VK_LEFT:
 			bL = true;
 			break;
@@ -123,5 +134,14 @@ public class Tank {
 			break;
 		}
 		
+	}
+	
+	public Missile fire(){
+		
+		int x=this.x+Tank.WIDTH/2-Missile.WIDTH/2;
+		int y=this.y+Tank.HEIGHT/2-Missile.HEIGHT/2;
+		Missile missile=new Missile(x, y, dir);
+		
+		return missile;
 	}
 }
