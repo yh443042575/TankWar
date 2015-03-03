@@ -6,18 +6,23 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.List;
 
 public class TankClient extends Frame {
 
 	public static final int GAME_WIDTH = 800, GAME_HEIGHT = 600;
 	Tank myTank = new Tank(50, 50, this);
-	Missile missile = null;
+	List<Missile> missiles=new LinkedList<Missile>();
 	Image offScreenImage = null;
 
 	@Override
 	public void paint(Graphics g) {
-		if (missile != null)
-			missile.draw(g);
+		g.drawString("Missiles count:" + missiles.size(), 10, 50);
+		for(Missile missile:missiles)
+		{
+			missile.draw(g); 
+		}
 		myTank.draw(g);
 
 	}
@@ -38,7 +43,7 @@ public class TankClient extends Frame {
 	}
 
 	public void lauchFrame() {
-		this.setLocation(400, 300);
+		this.setLocation(200, 100);
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
 		this.setBackground(Color.GREEN);
 		setTitle("TankVar");
