@@ -6,24 +6,31 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TankClient extends Frame {
 
 	public static final int GAME_WIDTH = 800, GAME_HEIGHT = 600;
-	Tank myTank = new Tank(50, 50, this);
-	List<Missile> missiles=new LinkedList<Missile>();
+	Tank myTank = new Tank(50, 50,true, this);
+	Tank enemyTank = new Tank (100, 100, false ,this);
+	List<Missile> missiles=new ArrayList<Missile>();
 	Image offScreenImage = null;
 
 	@Override
 	public void paint(Graphics g) {
 		g.drawString("Missiles count:" + missiles.size(), 10, 50);
+		if(missiles.size()!=0)
 		for(Missile missile:missiles)
 		{
-			missile.draw(g); 
+			/*if(!missile.isAlive())
+				missiles.remove(missile);
+			else */
+				missile.hitTank(enemyTank);
+				missile.draw(g); 
 		}
 		myTank.draw(g);
+		enemyTank.draw(g);
 
 	}
 
