@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.util.Random;
 
 public class Tank {
 
@@ -13,8 +14,21 @@ public class Tank {
 	private boolean bL = false, bU = false, bD = false, bR = false;
 
 	private boolean good;
-	private boolean alive=true;
-	public boolean isAlive() { 
+	public boolean isGood() {
+		return good;
+	}
+
+	public void setGood(boolean good) {
+		this.good = good;
+	}
+
+	private boolean alive = true;
+
+	private static Random r = new Random();
+
+	private int step = 0;
+
+	public boolean isAlive() {
 		return alive;
 	}
 
@@ -31,25 +45,36 @@ public class Tank {
 	int x, y;
 	TankClient tc;
 
-	public Tank(int x, int y,boolean good) {
+	public Tank(int x, int y, boolean good) {
 		this.x = x;
 		this.y = y;
-		this.good=good;
+		this.good = good;
 	}
 
 	public Tank(int x, int y, boolean good, TankClient tc) {
-		this(x, y,good);
+		this(x, y, good);
 		this.tc = tc;
 	}
 
+	public Tank(int x, int y, boolean good, Direction dir, TankClient tc) {
+		this(x, y, good, tc);
+		this.dir = dir;
+	}
+
 	public void draw(Graphics g) {
-		if (!alive) return;
-		
+		if (!alive) {
+
+			if (!good) {
+				tc.enemyTanks.remove(this);
+			}
+			return;
+		}
+
 		Color c = g.getColor();
-		if(this.good==true)
-		g.setColor(Color.RED);
-		else 
-		g.setColor(Color.BLUE);
+		if (this.good == true)
+			g.setColor(Color.RED);
+		else
+			g.setColor(Color.BLUE);
 		g.fillOval(x, y, WIDTH, HEIGHT);
 		g.setColor(c);
 
@@ -89,6 +114,7 @@ public class Tank {
 		default:
 			break;
 		}
+		move();
 	}
 
 	private void move() {
@@ -121,9 +147,11 @@ public class Tank {
 			x += XSPEED;
 			y += YSPEED;
 			break;
-
+		case STOP:
+			break;
 		default:
 			break;
+
 		}
 
 		if (dir != Direction.STOP) {
@@ -141,6 +169,21 @@ public class Tank {
 			x = TankClient.GAME_WIDTH - Tank.WIDTH;
 		if (y + Tank.HEIGHT > TankClient.GAME_HEIGHT)
 			y = TankClient.GAME_HEIGHT - Tank.HEIGHT;
+
+		if (!good) {
+			if ((step+1)%10==0) {
+				
+				Direction[] dirs = Direction.values();
+				int rn = r.nextInt(dirs.length);
+				dir = dirs[rn];			
+				if ((step+1)%20==0) {
+					step=0;
+					this.fire();
+				}
+			}
+			step++;
+			System.out.println(step);
+		}
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -161,14 +204,12 @@ public class Tank {
 			break;
 		}
 		locateDirection();
-		move();
 
 	}
 
 	private void locateDirection() {
-		if (!bL & !bR & !bU & !bD)
-			dir = Direction.STOP;
-		else if (bL & !bR & !bU & !bD)
+
+		if (bL & !bR & !bU & !bD)
 			dir = Direction.L;
 		else if (!bL & bR & !bU & !bD)
 			dir = Direction.R;
@@ -184,6 +225,8 @@ public class Tank {
 			dir = Direction.RU;
 		else if (!bL & bR & !bU & bD)
 			dir = Direction.RD;
+		else if (!bL & !bR & !bU & !bD)
+			dir = Direction.STOP;
 
 	}
 
@@ -206,19 +249,24 @@ public class Tank {
 			bD = false;
 			break;
 		}
+		locateDirection();
 
 	}
 
 	public Missile fire() {
 
+		if(this.isAlive()){
 		int x = this.x + Tank.WIDTH / 2 - Missile.WIDTH / 2;
 		int y = this.y + Tank.HEIGHT / 2 - Missile.HEIGHT / 2;
-		Missile missile = new Missile(x, y, ptDir, tc);
+		Missile missile = new Missile(x, y, good,ptDir, tc);
 		tc.missiles.add(missile);
 		return missile;
+		}
+		else 
+			return null;
 	}
-	
-	public Rectangle getRect(){
-		return new Rectangle(x,y,WIDTH,HEIGHT);
+
+	public Rectangle getRect() {
+		return new Rectangle(x, y, WIDTH, HEIGHT);
 	}
 }

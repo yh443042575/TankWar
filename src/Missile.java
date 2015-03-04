@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.util.List;
 
 public class Missile {
 
@@ -12,6 +13,8 @@ public class Missile {
 
 	private boolean alive = true;
 	private TankClient tc;
+
+	private boolean good;
 
 	public boolean isAlive() {
 		return alive;
@@ -26,24 +29,28 @@ public class Missile {
 		this.y = y;
 		this.dir = dir;
 	}
-	
-	public Missile(int x,int y,Tank.Direction dir ,TankClient tc){
+
+	public Missile(int x, int y, boolean good, Tank.Direction dir, TankClient tc) {
 		this(x, y, dir);
-		this.tc=tc;
+		this.tc = tc;
+		this.good=good;
 	}
 
 	int x, y;
 	Tank.Direction dir;
 
 	public void draw(Graphics g) {
-		if(!alive){
+		if (!alive) {
 			tc.missiles.remove(this);
-			return ;
+			return;
 		}
-			
-		
+
 		Color color = g.getColor();
+		if(this.good==false)
 		g.setColor(Color.black);
+		else {
+			g.setColor(Color.PINK);
+		}
 		g.fillOval(x, y, WIDTH, HEIGHT);
 		g.setColor(color);
 		move();
@@ -85,26 +92,37 @@ public class Missile {
 		}
 
 		if (x < 0 || y < 0 || y > TankClient.GAME_HEIGHT
-				|| x > TankClient.GAME_WIDTH)
-			{alive = false;
-			}
-	}
-	
-	public Rectangle getRect(){
-		return new Rectangle(x,y,WIDTH,HEIGHT);
-	}
-	
-	public boolean hitTank(Tank t){
-		if(this.getRect().intersects(t.getRect())&&t.isAlive()){
-			t.setAlive(false);
-			this.alive=false;
-			return true;
+				|| x > TankClient.GAME_WIDTH) {
+			alive = false;
 		}
-		else 
+	}
+
+	public Rectangle getRect() {
+		return new Rectangle(x, y, WIDTH, HEIGHT);
+	}
+
+	public boolean hitTank(Tank t) {
+		if (this.getRect().intersects(t.getRect()) && t.isAlive()&&this.good!=t.isGood()) {
+			t.setAlive(false);
+			this.alive = false;
+			Explode explode = new Explode(x, y, tc);
+			tc.explodes.add(explode);
+			return true;
+		} else
+			return false;
+
+	}
+
+	public boolean hitTanks(List<Tank> tanks) {
+
+		for (int i = 0; i < tanks.size(); i++) {
+			if (hitTank(tanks.get(i))) {
+				return true;
+			}
+			else if(hitTank(tc.myTank))
+				return true;
+		}
 		return false;
-			
-			
-		
 	}
 
 }

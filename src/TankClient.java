@@ -12,25 +12,42 @@ import java.util.List;
 public class TankClient extends Frame {
 
 	public static final int GAME_WIDTH = 800, GAME_HEIGHT = 600;
-	Tank myTank = new Tank(50, 50,true, this);
-	Tank enemyTank = new Tank (100, 100, false ,this);
-	List<Missile> missiles=new ArrayList<Missile>();
+	Tank myTank = new Tank(50, 500, true,Tank.Direction.STOP, this);
+	
+	List<Explode> explodes=new ArrayList<Explode>();
+	List<Missile> missiles = new ArrayList<Missile>();
+	List<Tank> enemyTanks=new ArrayList<Tank>();
 	Image offScreenImage = null;
 
 	@Override
 	public void paint(Graphics g) {
 		g.drawString("Missiles count:" + missiles.size(), 10, 50);
-		if(missiles.size()!=0)
-		for(Missile missile:missiles)
+		g.drawString("explodes count:" + explodes.size(), 10, 70);
+		g.drawString("enemyTanks count:" + enemyTanks.size(), 10, 90);
+
+		if (missiles.size() != 0)
+			for (int i=0;i<missiles.size();i++) {
+				/*
+				 * if(!missile.isAlive()) missiles.remove(missile); else
+				 */
+				 
+				Missile missile=missiles.get(i);
+				missile.hitTanks(enemyTanks);
+				missile.draw(g);
+			}
+		for(int i=0;i<explodes.size();i++){
+			Explode e=explodes.get(i);
+			e.draw(g);
+		}
+		for(int i=0;i<enemyTanks.size();i++)
 		{
-			/*if(!missile.isAlive())
-				missiles.remove(missile);
-			else */
-				missile.hitTank(enemyTank);
-				missile.draw(g); 
+			Tank tank=enemyTanks.get(i);
+			tank.draw(g);
 		}
 		myTank.draw(g);
-		enemyTank.draw(g);
+		
+		
+		
 
 	}
 
@@ -50,6 +67,10 @@ public class TankClient extends Frame {
 	}
 
 	public void lauchFrame() {
+		for(int i=0;i<10;i++)
+		{
+			enemyTanks.add(new Tank(40*(i+1),50,false,Tank.Direction.D,this));
+		}
 		this.setLocation(200, 100);
 		this.setSize(GAME_WIDTH, GAME_HEIGHT);
 		this.setBackground(Color.GREEN);
@@ -82,7 +103,7 @@ public class TankClient extends Frame {
 			while (true) {
 				repaint();
 				try {
-					Thread.sleep(20);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
